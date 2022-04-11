@@ -1,0 +1,293 @@
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'bootstrap.min.css' %}">
+
+<div class="container">
+    <h1 class="border-bottom fw-bolder text-center py-3 my-5">품질관리 데이터 요약</h1>
+</div>
+<div class="container pb-5">
+
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Date</th>
+                <th>Temperature(C)</th>
+                <th>Humidity(%)</th>
+                <th>CO2(%)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for chartdata in chartdatas %}
+                <tr>
+                    <th>{{chartdata.date}}</th>
+                    <td>{{chartdata.temp}}</td>
+                    <td>{{chartdata.humidity}}</td>
+                    <td>{{chartdata.CO2}}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+
+
+<div class="container py-5">
+    <div id="container">
+
+      <script src="https://code.highcharts.com/stock/highstock.js"></script>
+      <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+      <script>
+
+        function setChart() {
+          Highcharts.setOption({
+            global: {
+              useUTC: false
+            }
+          });
+        };
+
+        $.ajax({
+          url: "{% url 'chart:chart_data_api' %}",
+          dataType: 'json',
+          success: function (data) {
+
+            Highcharts.setOptions({
+              global: {
+                useUTC: false
+              }
+            });
+
+            Highcharts.chart('container', {
+
+                title: {
+                    text: '품질 관리 그래프'
+                },
+
+                subtitle: {
+                    text: 'by temperature, humidity, CO2'
+                },
+
+                yAxis: {
+                  labels: {
+                    format: '{value}',
+                    style: {
+                      color: 'rgba(0,0,0,.6)',
+                    },
+                    x: 30,
+                  },
+                  opposite: false,
+                  tickInterval: 20,
+                },
+
+                xAxis: {
+                    type: 'datetime',
+                    labels:{
+                        formatter: function(){
+                            return Highcharts.dateFormat('%y.%m.%d', this.value);
+                            },
+                        step: 1
+                        }
+                    },
+
+              legend: {
+                enabled: true,
+                align: 'left',
+                verticalAlign: 'top',
+                floating: false,
+                x: 30,
+                y: 0
+              },
+
+                tooltip: {
+                xDateFormat: '%Y-%m-%d',
+                split: true
+                },
+
+                plotOptions: {
+                    series: {
+                        label: {
+                            connectorAllowed: false
+                        },
+                        pointStart: 2010
+                    }
+                },
+
+              series: [{
+                  name: '온도(C)',
+                  data: data.temperature,
+                  color: 'rgba(0,200,0,.6)',
+                  lineWidth: 2
+              },
+              {
+                  name: '습도(%)',
+                  data: data.humidity,
+                  lineWidth: 3
+              },
+              {
+                  name: 'CO2(%)',
+                  data: data.co2,
+                  lineWidth: 3
+              }],
+
+                responsive: {
+                    rules: [{
+                        condition: {
+                            maxWidth: 500
+                        },
+                        chartOptions: {
+                            legend: {
+                                layout: 'horizontal',
+                                align: 'center',
+                                verticalAlign: 'bottom'
+                            }
+                        }
+                    }]
+                }
+
+            });
+          }
+        });
+
+      </script>
+    </div>
+</div>
+
+<div class="container py-5">
+    <select onchange="getval(this);">
+    <option selected>Open this select menu</option>
+    <option value="0">Temperature</option>
+    <option value="1">Humidity</option>
+    <option value="2">CO2</option>
+    </select>
+
+    <div id="container2">
+
+      <script src="https://code.highcharts.com/stock/highstock.js"></script>
+      <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+      <script>
+          function getval(sel) {
+            var arr = ["temperature", "humidity", "co2"];
+            sel_text = arr[sel.value]
+
+            function setChart() {
+              Highcharts.setOption({
+                global: {
+                  useUTC: false
+                }
+              });
+            };
+
+            $.ajax({
+              url: "{% url 'chart:chart_data_api' %}",
+              dataType: 'json',
+              success: function (data) {
+
+                Highcharts.setOptions({
+                  global: {
+                    useUTC: false
+                  }
+                });
+
+                Highcharts.chart('container2', {
+
+                    title: {
+                        text: '품질 관리 그래프'
+                    },
+
+                    subtitle: {
+                        text: 'by '+sel_text
+                    },
+
+                    yAxis: {
+                      labels: {
+                        format: '{value}',
+                        style: {
+                          color: 'rgba(0,0,0,.6)',
+                        },
+                        x: 30,
+                      },
+                      opposite: false,
+                      tickInterval: 20,
+                      plotLines: [{
+                      color: 'red',
+                      dashStyle: 'dot',
+                      width: 2,
+                      value: 50,
+                      label: {
+                        align: 'right',
+                        style: {
+                          fontStyle: 'italic'
+                        },
+                        text: 'Safe sugar intake 50g/day',
+                        x: -10
+                      },
+                      zIndex: 3
+                    }],
+                    },
+
+                    xAxis: {
+                        type: 'datetime',
+                        labels:{
+                            formatter: function(){
+                                return Highcharts.dateFormat('%y.%m.%d', this.value);
+                                },
+                            step: 1
+                            }
+                        },
+
+                  legend: {
+                    enabled: true,
+                    align: 'left',
+                    verticalAlign: 'top',
+                    floating: false,
+                    x: 30,
+                    y: 0
+                  },
+
+                    tooltip: {
+                    xDateFormat: '%Y-%m-%d',
+                    split: true
+                    },
+
+                    plotOptions: {
+                        series: {
+                            label: {
+                                connectorAllowed: false
+                            },
+                            pointStart: 2010
+                        }
+                    },
+
+                    series: [{
+                            name: sel_text,
+                            data: data[sel_text],
+                            color: 'rgba(0,200,0,.6)',
+                            lineWidth: 2
+                     }],
+
+                    responsive: {
+                        rules: [{
+                            condition: {
+                                maxWidth: 500
+                            },
+                            chartOptions: {
+                                legend: {
+                                    layout: 'horizontal',
+                                    align: 'center',
+                                    verticalAlign: 'bottom'
+                                }
+                            }
+                        }]
+                    }
+
+                });
+              }
+            });
+
+          }
+      </script>
+    </div>
+</div>
+
+
+
