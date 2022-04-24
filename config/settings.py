@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'chart.apps.ChartConfig'
+    'chart.apps.ChartConfig',
+    'rest_framework'
 ]
 
 MIDDLEWARE = [

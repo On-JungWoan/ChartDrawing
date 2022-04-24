@@ -2,6 +2,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.views.generic import View
 from django.shortcuts import render
+from django.core.paginator import Paginator
 import numpy as np
 
 from .models import ChartData
@@ -64,10 +65,10 @@ class ChartDataAPIView(APIView):
 
         return Response(data)
 
-
 def ChartView(request):
-    chartdata = ChartData.objects.order_by('id')
-    context = {
-        'chartdatas': chartdata,
-    }
+    page = request.GET.get('page','1')
+    chartdata = ChartData.objects.order_by('date')
+    paginator = Paginator(chartdata, 10)  # 페이지당 10개씩 보여주기
+    page_obj = paginator.get_page(page)
+    context = {'chartdatas': page_obj}
     return render(request, 'chart/chart.html', context)
