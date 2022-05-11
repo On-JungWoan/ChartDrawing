@@ -1,0 +1,148 @@
+        <div class="col" id="Range_Chart">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <th class="border-bottom my-3 py-2">품질 관리 그래프(기간별)</th>
+                </thead>
+
+                <tbody>
+                    <th id="container">
+
+                        <div class="card">
+                          <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                  <h5><strong>Loading...</strong></h5>
+                                  <div class="spinner-border ms-auto" role="status" aria-hidden="true"></div>
+                                </div>
+                          </div>
+                        </div>
+
+
+
+                          <script src="https://code.highcharts.com/stock/highstock.js"></script>
+                          <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+
+
+                          <script>
+
+
+                            //const time = new Highcharts().Time();
+
+                            $("#spinner").hide()
+
+
+                            function setChart() {
+                              Highcharts.setOption({
+                                global: {
+                                  useUTC: false
+                                }
+                              });
+                            };
+
+                            $.ajax({
+                              url: "{% url 'chart:chart_data_api' %}",
+                              dataType: 'json',
+                              success: function (data) {
+
+
+                                    function setChart() {
+                                      Highcharts.setOption({
+                                        global: {
+                                          useUTC: false
+                                        }
+                                      });
+                                    };
+
+                                    Highcharts.stockChart('container', {
+                                        chart: {
+                                            height: 500
+                                        },
+
+                                        rangeSelector: {
+
+                                          buttons: [{
+                                            type: 'day',
+                                            count: 1,
+                                            text: '1d'
+                                          }, {
+                                            type: 'day',
+                                            count: 3,
+                                            text: '3d'
+                                          }, {
+                                            type: 'week',
+                                            count: 1,
+                                            text: '1w'
+                                          }, {
+                                            type: 'week',
+                                            count: 2,
+                                            text: '2w'
+                                          }, {
+                                            type: 'week',
+                                            count: 3,
+                                            text: '3w'
+                                          }, {
+                                            type: 'all',
+                                            text: 'All'
+                                          }],
+                                          selected: 0
+                                        },
+
+                                        title: {
+                                            text:''
+                                        },
+
+                                        subtitle: {
+
+                                        },
+
+                                        xAxis: {
+                                            type: 'datetime',
+                                            labels:{
+                                                formatter: function(){
+                                                    return Highcharts.dateFormat('%Y.%m.%d', this.value);
+                                                },
+                                            step: 3
+                                            }
+                                        },
+
+                                        yAxis: {
+                                          title: {
+                                            text: 'Temperature (°C)'
+                                          }
+                                        },
+
+
+                                        series: [{
+                                          name: 'Temperature',
+                                          data: data.inner_temp,
+                                          pointStart: data.pointStart,
+                                          pointInterval: data.pointInterval,
+                                          tooltip: {
+                                            valueDecimals: 1,
+                                            valueSuffix: '°C'
+                                          }
+                                        }],
+
+                                        responsive: {
+                                            rules: [{
+                                                condition: {
+                                                    maxWidth: 500
+                                                },
+                                                chartOptions: {
+                                                    legend: {
+                                                        layout: 'horizontal',
+                                                        align: 'center',
+                                                        verticalAlign: 'bottom'
+                                                    }
+                                                }
+                                            }]
+                                        }
+
+                                    }); //chart
+                                } //function
+                            }); //ajax
+
+                          </script>
+                    </th>
+                </tbody>
+            </table>
+        </div> <!--col-->
